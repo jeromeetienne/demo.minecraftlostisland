@@ -7,6 +7,7 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 	, 'bower_components/threex.montainsarena/package.require.js'
 	, 'bower_components/threex.daynight/package.require.js'
 	, 'bower_components/threex.htmlmixer/package.require.js'
+	, 'bower_components/threex.windowresize/package.require.js'
 	], function(){
 	var renderer	= new THREE.WebGLRenderer({
 		antialias	: true
@@ -23,8 +24,12 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 	camera.position.z = 2;
 
 
-	
-	
+	THREEx.WindowResize(renderer, camera)
+
+	window.addEventListener('resize', function(event){
+		mixerContext.rendererCSS.setSize( window.innerWidth, window.innerHeight )
+	}, false)
+
 	//////////////////////////////////////////////////////////////////////////////////
 	//		set 3 point lighting						//
 	//////////////////////////////////////////////////////////////////////////////////
@@ -266,7 +271,7 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 
 		// object3d.position.x	= -3
 		object3d.position.y	= 1
-		object3d.position.z	= 6
+		object3d.position.z	= 6 
 		object3d.scale.multiplyScalar(2)
 		
 		// look at player
