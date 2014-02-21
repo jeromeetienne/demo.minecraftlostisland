@@ -195,14 +195,38 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 		if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= true
 		if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= true
 		if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= true
+		if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= true
+		if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= true
+
+		// to support arrows because tsate asked me :)
+		if( event.keyCode === 38 )			input.up	= true
+		if( event.keyCode === 40 )			input.down	= true
+		if( event.keyCode === 37 && !event.shiftKey )	input.left	= true
+		if( event.keyCode === 39 && !event.shiftKey )	input.right	= true
+		if( event.keyCode === 37 && event.shiftKey )	input.strafeLeft= true
+		if( event.keyCode === 39 && event.shiftKey )	input.strafeRight= true
 	})
 	document.body.addEventListener('keyup', function(event){
 		var input	= player.controls.input
+
+		console.log(event.keyCode)
+
 		if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= false
 		if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= false
 		if( event.keyCode === 'A'.charCodeAt(0) )	input.left	= false
 		if( event.keyCode === 'D'.charCodeAt(0) )	input.right	= false
+		if( event.keyCode === 'Q'.charCodeAt(0) )	input.strafeLeft= false
+		if( event.keyCode === 'E'.charCodeAt(0) )	input.strafeRight= false
+
+		// to support arrows because tsate asked me :)
+		if( event.keyCode === 38 )			input.up	= false
+		if( event.keyCode === 40 )			input.down	= false
+		if( event.keyCode === 37 && !event.shiftKey )	input.left	= false
+		if( event.keyCode === 39 && !event.shiftKey )	input.right	= false
+		if( event.keyCode === 37 && event.shiftKey )	input.strafeLeft= false
+		if( event.keyCode === 39 && event.shiftKey )	input.strafeRight= false
 	})
+
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		create THREEx.HtmlMixer						//
@@ -282,6 +306,93 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 		target.y	= object3d.position.y
 		object3d.lookAt(target)
 	})()
+
+	;(function(){
+		var url		= 'http://betterjs.org';
+		var mixerPlane	= THREEx.HtmlMixer.createPlaneFromIframe(mixerContext, url, {	elementW	: 1024
+		})
+		var object3d	= mixerPlane.object3d
+		scene.add(object3d)
+		onRenderFcts.push(function(delta, now){
+			mixerPlane.update(delta, now)
+		})
+
+		// object3d.position.x	= -3
+		object3d.position.y	= 1
+		object3d.position.z	= -6 
+		object3d.scale.multiplyScalar(2)
+		
+		// look at player
+		var target	= player.character.root.position.clone()
+		target.y	= object3d.position.y
+		object3d.lookAt(target)
+	})()
+
+	;(function(){
+		var url		= 'http://blog.jetienne.com/blog/2011/04/07/jquery-qrcode/';
+		var mixerPlane	= THREEx.HtmlMixer.createPlaneFromIframe(mixerContext, url, {	elementW	: 1024
+		})
+		var object3d	= mixerPlane.object3d
+		scene.add(object3d)
+		onRenderFcts.push(function(delta, now){
+			mixerPlane.update(delta, now)
+		})
+
+		object3d.position.x	= -3
+		object3d.position.y	= 1
+		object3d.position.z	= -6 
+		object3d.scale.multiplyScalar(2)
+		
+		// look at player
+		var target	= player.character.root.position.clone()
+		target.y	= object3d.position.y
+		object3d.lookAt(target)
+	})()
+	
+	;(function(){
+		var url		= 'http://learningthreejs.com/blog/2013/08/02/how-to-do-a-procedural-city-in-100lines/	';
+		var mixerPlane	= THREEx.HtmlMixer.createPlaneFromIframe(mixerContext, url, {	elementW	: 1024
+		})
+		var object3d	= mixerPlane.object3d
+		scene.add(object3d)
+		onRenderFcts.push(function(delta, now){
+			mixerPlane.update(delta, now)
+		})
+
+		object3d.position.x	= 3
+		object3d.position.y	= 1
+		object3d.position.z	= -6 
+		object3d.scale.multiplyScalar(2)
+		
+		// look at player
+		var target	= player.character.root.position.clone()
+		target.y	= object3d.position.y
+		object3d.lookAt(target)
+	})()
+
+
+	function addPage(url, position, mixerPlaneOptions){
+		mixerPlaneOptions	= mixerPlaneOptions	|| {
+			elementW	: 512
+		}
+		var mixerPlane	= THREEx.HtmlMixer.createPlaneFromIframe(mixerContext, url, mixerPlaneOptions)
+		var object3d	= mixerPlane.object3d
+		scene.add(object3d)
+		onRenderFcts.push(function(delta, now){
+			mixerPlane.update(delta, now)
+		})
+
+		object3d.position.copy(position)
+		object3d.position.x	= 3
+		object3d.position.y	= 1
+		object3d.position.z	= -6 
+		object3d.scale.multiplyScalar(2)
+		
+		// look at player
+		var target	= player.character.root.position.clone()
+		target.y	= object3d.position.y
+		object3d.lookAt(target)		
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		render the scene						//
