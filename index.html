@@ -163,14 +163,14 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 		var object3d	= player.character.root
 
 		// set camera position
-		var vector	= new THREE.Vector3(0,1.2,-2);
+		var vector	= new THREE.Vector3(0, 1.2,-2);
 		var matrix	= new THREE.Matrix4().makeRotationY(object3d.rotation.y);
 		vector.applyMatrix4( matrix );
 		var position	= object3d.position.clone().add(vector);
 		camera.position.copy(position)
 
 		// set camera lookAt
-		var vector	= new THREE.Vector3(0, 0.5, 3);
+		var vector	= new THREE.Vector3(0, 1.2, 3);
 		var matrix	= new THREE.Matrix4().makeRotationY(object3d.rotation.y);
 		vector.applyMatrix4( matrix );
 		var target	= object3d.position.clone().add(vector);
@@ -285,7 +285,7 @@ if( true ){
 	tvSet.object3d.position.x	= 0
 	tvSet.object3d.position.y	= 0
 	tvSet.object3d.position.z	= 0
-	tvSet.object3d.scale.multiplyScalar(5)
+	tvSet.object3d.scale.multiplyScalar(6)
 	
 	scene.add(tvSet.object3d)
 	tvSet.setScreenPlane(mixerPlane.object3d)
