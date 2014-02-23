@@ -3,7 +3,74 @@
 <script src='vendor/three.js/build/three.js'></script>
 <script src='vendor/three.js/examples/js/renderers/CSS3DRenderer.js'></script>
 <script src='vendor/three.js/examples/js/loaders/ColladaLoader.js'></script>
-<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'><script>
+
+
+<body style='margin: 0px; background-color: #bbbbbb; overflow: hidden;'>
+	
+<style>
+@font-face {	/* for mute button which is part of awesome font */
+	font-family: 'FontAwesome';
+	src: url('vendor/Font-Awesome/font/fontawesome-webfont.eot?v=3.2.1');
+	src: url('vendor/Font-Awesome/font/fontawesome-webfont.eot?#iefix&v=3.2.1') format('embedded-opentype'), url('vendor/Font-Awesome/font/fontawesome-webfont.woff?v=3.2.1') format('woff'), url('vendor/Font-Awesome/font/fontawesome-webfont.ttf?v=3.2.1') format('truetype'), url('vendor/Font-Awesome/font/fontawesome-webfont.svg#fontawesomeregular?v=3.2.1') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+</style>
+
+<style>
+.osdFont {
+	font-family	: arial, verdana, sans-serif;
+	font-size	: 200%;
+	font-weight	: bolder;
+
+	transition		: opacity 0.5s ease;
+	-webkit-transition	: opacity 0.5s ease;
+
+	color		: #000;
+	text-shadow	: 0 0 0.2em #fbc, 0 0 0.2em #fbc, 0 0 0.2em #fbc;
+}
+.osdFont {
+	opacity: 0
+}
+.osdFont.visible {
+	opacity: 1
+}
+.clickableOsd {
+	padding: 4px;
+	margin: 4px;	
+}
+.clickableOsd:hover {
+	background-color: rgba(255,0,0,0.5);
+	border-radius	: 6px;  	
+	pointer		: 'hand';
+}
+.osdIcon {
+	font-family: FontAwesome;
+	font-size: 500%	
+}
+</style>
+
+<style>
+#tvSetOsd {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+}
+#exitOsd:before {
+	content: "\f0e2"
+}
+
+#menuOsd:before {
+	content: "\f039"
+}
+</style>
+
+<div id='tvSetOsd'>
+	<div id="menuOsd" class='osdFont clickableOsd osdIcon' title='Goto Menu'></div>
+	<div id="exitOsd" class='osdFont clickableOsd osdIcon' title='Go Back Walking'></div>
+</div>
+	
+<script>
 require([ 'bower_components/threex.minecraft/package.require.js'
 	, 'bower_components/threex.montainsarena/package.require.js'
 	, 'bower_components/threex.daynight/package.require.js'
@@ -156,10 +223,12 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 	// camera.lookAt(new THREE.Vector3(0,0.5,3))
 	
 	
+	var cameraControlsDisabled	= false
 	// keep the camera behind the player
 	// - complex but html.mixer needs the camera to be at the world level
 	onRenderFcts.push(function(delta){
-// return
+		if( cameraControlsDisabled )	return
+
 		var object3d	= player.character.root
 
 		// set camera position
@@ -215,7 +284,7 @@ require([ 'bower_components/threex.minecraft/package.require.js'
 	document.body.addEventListener('keyup', function(event){
 		var input	= player.controls.input
 
-		console.log(event.keyCode)
+		// console.log(event.keyCode)
 
 		if( event.keyCode === 'W'.charCodeAt(0) )	input.up	= false
 		if( event.keyCode === 'S'.charCodeAt(0) )	input.down	= false
@@ -290,9 +359,55 @@ if( true ){
 	scene.add(tvSet.object3d)
 	tvSet.setScreenPlane(mixerPlane.object3d)
 	
-	
-	// camera.position.copy(tvSet.object3d.position)
-	// camera.position.add(new THREE.Vector3(0,0.31,0.6).multiply(tvSet.object3d.scale))
+	/**
+	 * what is the state automata
+	 * - state = sitting or walking
+	 * - if state === walking and distance to object < threshold
+	 *   goto state = sitting
+	 * - if state === sitting and press esc then goto state walking 
+	 */
+
+	var state	= 'walking'
+	onRenderFcts.push(function(){
+		var distanceTo	= player.character.root.position.distanceTo(tvSet.object3d.position)
+	// console.log('distanceTo', distanceTo)
+		if( state === 'walking' && distanceTo < 4 ){
+	console.log('goto sitting')
+			state	= 'sitting'
+			cameraControlsDisabled	= true
+			camera.position.copy(tvSet.object3d.position)
+			camera.position.add(new THREE.Vector3(0,0.31,0.6).multiply(tvSet.object3d.scale))
+			camera.lookAt(new THREE.Vector3(0,camera.position.y,1))
+			
+			document.querySelector('#menuOsd').classList.toggle('visible')
+			document.querySelector('#exitOsd').classList.toggle('visible')
+		}
+	})
+
+	document.querySelector('#menuOsd').addEventListener('click', function(){
+		domElement.src	= 'bower_components/threex.tvset/examples/menu.html';
+	});
+
+	document.body.addEventListener('keydown', function(event){
+		if( event.keyCode === 27 )	tryToExit()
+	})
+
+	document.querySelector('#exitOsd').addEventListener('click', function(){
+		tryToExit()		
+	})
+
+	function tryToExit(){
+		if( state === 'sitting' ){
+			state	= 'walking'	
+			cameraControlsDisabled	= false	
+			var delta	= player.character.root.position.clone().sub(tvSet.object3d.position)
+			delta.setLength(4)
+			player.character.root.position.add(delta)
+
+			document.querySelector('#menuOsd').classList.toggle('visible')
+			document.querySelector('#exitOsd').classList.toggle('visible')
+		}
+	}
 
 	//////////////////////////////////////////////////////////////////////////////////
 	//		big red button							//
